@@ -152,7 +152,7 @@ class PlaylistLoader extends EventHandler {
   }
 
   onManifestLoading (data) {
-    this.load(data.url, { type: ContextType.MANIFEST });
+    this.load(data.url, { type: ContextType.MANIFES, level: null, id: null });
   }
 
   onLevelLoading (data) {
@@ -160,15 +160,17 @@ class PlaylistLoader extends EventHandler {
   }
 
   onAudioTrackLoading (data) {
-    this.load(data.url, { type: ContextType.AUDIO_TRACK, id: data.id });
+    this.load(data.url, { type: ContextType.AUDIO_TRACK, level: null, id: data.id });
   }
 
   onSubtitleTrackLoading (data) {
-    this.load(data.url, { type: ContextType.SUBTITLE_TRACK, id: data.id });
+    this.load(data.url, { type: ContextType.SUBTITLE_TRACK, level: null, id: data.id });
   }
 
   load (url, context) {
     const config = this.hls.config;
+
+    logger.debug(`Loading playlist of type ${context.type}, level: ${context.level}, id: ${context.id}`);
 
     // Check if a loader for this context already exists
     let loader = this.getInternalLoader(context);
@@ -182,6 +184,7 @@ class PlaylistLoader extends EventHandler {
         loader.abort();
       }
     }
+
     let maxRetry,
       timeout,
       retryDelay,
@@ -207,7 +210,6 @@ class PlaylistLoader extends EventHandler {
       timeout = config.levelLoadingTimeOut;
       retryDelay = config.levelLoadingRetryDelay;
       maxRetryDelay = config.levelLoadingMaxRetryTimeout;
-      logger.log(`Playlist loader for ${context.type} ${context.level || context.id}`);
       break;
     }
 
@@ -216,20 +218,20 @@ class PlaylistLoader extends EventHandler {
     context.url = url;
     context.responseType = context.responseType || ''; // FIXME: (should not be necessary to do this)
 
-    let loaderConfig, loaderCallbacks;
-
-    loaderConfig = {
+    const loaderConfig = {
       timeout,
       maxRetry,
       retryDelay,
       maxRetryDelay
     };
 
-    loaderCallbacks = {
+    const loaderCallbacks = {
       onSuccess: this.loadsuccess.bind(this),
       onError: this.loaderror.bind(this),
       onTimeout: this.loadtimeout.bind(this)
     };
+
+    logger.debug(`Calling internal loader delegate for URL: ${url}`);
 
     loader.load(context, loaderConfig, loaderCallbacks);
 
@@ -410,6 +412,8 @@ class PlaylistLoader extends EventHandler {
   }
 
   _handleNetworkError (context, networkDetails, timeout = false) {
+    logger.info(`A network error occured while loading a ${context.type}-type playlist`);
+
     let details;
     let fatal;
 
