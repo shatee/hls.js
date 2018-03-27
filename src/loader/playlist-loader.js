@@ -152,7 +152,7 @@ class PlaylistLoader extends EventHandler {
   }
 
   onManifestLoading (data) {
-    this.load(data.url, { type: ContextType.MANIFES, level: null, id: null });
+    this.load(data.url, { type: ContextType.MANIFEST, level: null, id: null });
   }
 
   onLevelLoading (data) {
