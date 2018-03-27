@@ -152,7 +152,7 @@ export default class LevelController extends EventHandler {
     let levels = this._levels;
     if (levels) {
       newLevel = Math.min(newLevel, levels.length - 1);
-      if (this.currentLevelIndex !== newLevel || levels[newLevel].details === undefined)
+      if (this.currentLevelIndex !== newLevel || !levels[newLevel].details)
         this.setLevelInternal(newLevel);
     }
   }
