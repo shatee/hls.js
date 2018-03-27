@@ -109,18 +109,29 @@ class AudioTrackController extends TaskLoop {
 
   set audioTrack (newId) {
     // noop on same audio track id as already set
-    if (this.trackId === newId)
+    if (this.trackId === newId) {
+      logger.debug('Same id as current audio-track passed, no-op');
       return;
+    }
 
     // check if level idx is valid
-    if (newId < 0 || newId >= this.tracks.length)
+    if (newId < 0 || newId >= this.tracks.length) {
+      logger.warn('Invalid id passed to audio-track controller');
       return;
+    }
+
+    const audioTrack = this.tracks[newId];
+    if (typeof audioTrack !== 'object') {
+      logger.error('Inconsistent audio-track list!');
+      return;
+    }
+
+    logger.log(`Now switching to audio-track index ${newId}`);
 
     // stopping live reloading timer if any
     this.clearInterval();
     this.trackId = newId;
-    logger.log(`Switching to audioTrack ${newId}`);
-    const audioTrack = this.tracks[newId];
+
     const { url, type, id } = audioTrack;
     this.hls.trigger(Event.AUDIO_TRACK_SWITCHING, { id, type, url });
     this._loadTrackDetailsIfNeeded(audioTrack);
@@ -138,11 +149,7 @@ class AudioTrackController extends TaskLoop {
    * @returns {boolean}
    */
   _needsTrackLoading (audioTrack) {
-    const { url, details } = audioTrack;
-
-    // ???
-    if (!url)
-      return false;
+    const { details } = audioTrack;
 
     if (!details)
       return true;
