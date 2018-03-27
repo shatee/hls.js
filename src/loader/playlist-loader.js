@@ -152,7 +152,7 @@ class PlaylistLoader extends EventHandler {
   }
 
   onManifestLoading (data) {
-    this.load(data.url, { type: ContextType.MANIFEST, level: null, id: null });
+    this.load(data.url, { type: ContextType.MANIFEST, level: 0, id: null });
   }
 
   onLevelLoading (data) {
@@ -160,11 +160,11 @@ class PlaylistLoader extends EventHandler {
   }
 
   onAudioTrackLoading (data) {
-    this.load(data.url, { type: ContextType.AUDIO_TRACK, level: null, id: data.id });
+    this.load(data.url, { type: ContextType.AUDIO_TRACK, level: 0, id: data.id });
   }
 
   onSubtitleTrackLoading (data) {
-    this.load(data.url, { type: ContextType.SUBTITLE_TRACK, level: null, id: data.id });
+    this.load(data.url, { type: ContextType.SUBTITLE_TRACK, level: 0, id: data.id });
   }
 
   load (url, context) {
